@@ -1,0 +1,4 @@
+{
+ :variables #endplate/def {:from-who "local template var"}
+ :template  ["Hello from"  #endplate/val :from-who]
+ }

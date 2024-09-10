@@ -1,0 +1,11 @@
+{
+ :variables #endplate/def {:some-key1 "This is some variable value"
+                           :some-key2 "This is some other variable"}
+ :template  {:key1 1
+             :key2 "2"
+             :key3 [1 2 3]
+             :key4 {:m1 :a
+                    :m2 :b}
+             :sk1  #endplate/val :some-key1
+             :sk2  #endplate/val :some-key2}
+ }
