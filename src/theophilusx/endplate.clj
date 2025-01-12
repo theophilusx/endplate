@@ -8,12 +8,24 @@
   Default is the direcvtory resources/templates."
   (atom "resources/templates"))
 
-(defn parse-template [template-file & {:keys [template-vars hiccup-vectors return-string
-                                              list-eval]
-                                       :or   {template-vars  {}
-                                              hiccup-vectors false
-                                              list-eval      true
-                                              return-string  false}}]
+(defn parse-template
+  "Parse an EDN based template file and return either a clojure collection or a string.
+  A template is an EDN map with one mandatory key ':template' and an optional ':variables' key.
+  The ':template' key value is either a clojure vector or map. The ':variables' key value is
+  a map of template variable names and their associated value. Template variable names are clojure keywords.
+  This map is used to initialise a template variables map. When the template is being parsed, any instance of
+  the EDN tag '#endplate/val' followsed by a keyword is replaced with the value associated with that keyword
+  from the template variables map. If optonal key :hicup-vectors is true, any template variable which is a vector
+  and has a first element that is NOT a keywsord is converted to a string, otherwise it is returned as a vector.
+  If optional key :return-string is true, the value returned is converted to a string, otherwise it is the
+  collection type defined by the :template. If optional key :list-eval is false, template variables which are
+  lists will NOT be evaluated. The default is to evaluate the list and return whatever value it evalutaes to."
+  [template-file & {:keys [template-vars hiccup-vectors return-string
+                           list-eval]
+                    :or   {template-vars  {}
+                           hiccup-vectors false
+                           list-eval      true
+                           return-string  false}}]
   (try
     (let [vars    (atom template-vars)
           data    (slurp (str @template-dir "/" template-file))

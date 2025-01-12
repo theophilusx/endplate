@@ -1,0 +1,70 @@
+#+#+title: Endplate - A Simple EDN Based Template System
+
+* Introduction
+
+~Endplate~ is an extremely simple basic templating system. In many of my projects,
+especially web based projects, I often wanted a simple way to create templates that could
+be used to manage structured data that is re-used in different contexts with only minor
+changes. I also wanted something which builds on existing ~Clojure~ and ~Clojurescript~
+functionality and work with native ~Clojure~ data types.
+
+The obvious candidate was to do something based around EDN. As ~Clojure~ supports parsing of
+EDN files and given how easy it is to add new types, using EDN seems like a simple and
+flexible solution. Essentially, ~endplate~ uses an EDN format together with two custom
+functions to process special /tokens/ and replace them with either a template defined
+value or a value passed in during template processing.
+
+While ~endplate~ can be used to work with general EDN formatted data, it is particularly
+useful for managing templates of ~hiccup~ data used for HTML generation. In addition to
+basic EDN template procwessing, ~endplate~ adds some additional functions to make working
+with ~hiccup~ data a little easier.
+
+* Install
+
+* Usage
+
+** Template Definition
+
+A template consists of an EDN map with the mandatory key ~:template~ and possibly an
+optional key, ~:template-vars~. The ~:template~ key can be either a vector or a map. This
+determines what format the returned template object will be. The ~:template-vars~ key value is a
+map which defines template variables which can be embedded into the main
+template object. The keys in the map represent the variable names and the value associated
+with the key is the value for the variable. Variable names are clojure keywords.
+
+Template variables can have any value which is understood by EDN. However, some values may
+receive special treatment when a template is parsed depending on switches passed into the
+~parse-template~ function when called. By default, lists are evaluatged and their return
+value used as the value associated with the template variable. The optional key
+~hiccup-vectors~, when set to true, will result in special treatment for vectors. When true,
+the vector will be examined to see if the first value is a keyword. If it is, the vector
+is returned as the value for the template variable. If the first value in the vector is
+not a keyworde, the vector is converted to a string and that string is returned as the
+value to use fo}the template variable. If the value of ~hiccup-vectgors~ is false, which is
+the default, the vector is returned as the value for the template variable with no
+additional processing. 
+
+Two special EDN /tags/ are used to support the defintion and referencing of template
+variables.  The ~#endplat/val~ tag is used to reference a template variable and has one
+argument, the name of a template variable. When encountered, this tag will be replaced
+with the current value of the named variable, possibly with additional value processing as
+outlined in the previous paragraph. The second tag is ~#endplate/def~ and is used to define
+template variables. The argument to this tag is a map where the keyword keys are names of
+variables and their value will be used whenever that variable name is referenced by the
+~#endplate/val tag~.
+
+*** Simple Example
+
+The following is a very simple template example which includes one template variable.
+
+#+begin_src clojure
+  {
+   :template-vars #endplate/def {:foo "my foo var value"}
+   :template      ["The value of foo is " #endplate/val :foo]
+   }
+#+end_src
+
+The result of parsing the above template definition will be a vector with the following value
+
+: ["The value of foo is my foo var value"]
+
