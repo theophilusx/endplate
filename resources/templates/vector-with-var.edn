@@ -1,5 +1,1 @@
-{
- :variables #endplate/def {:some-key1 :f
-                           :some-key2 [9 8 7]}
- :template  [:a 2 "3" #endplate/val :some-key1 #endplate/val :some-key2]
- }
+[:a 2 "3" #endplate/val :some-key1 #endplate/val :some-key2]
