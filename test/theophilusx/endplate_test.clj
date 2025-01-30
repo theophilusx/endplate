@@ -75,6 +75,34 @@
                                      :context {:some-key1 :f})]
         (t/is (vector? rslt))
         (t/is (= rslt [:a 2 "3" :f [:default :value]])))))
-  )
+  (t/testing "Basic set template with variables"
+    (t/testing "Set template with variable"
+      (let [rslt (sut/parse-template "set-with-var.edn" :context {:one "one"})]
+        (t/is (set? rslt))
+        (t/is (= #{1 :1 "one"} rslt))))
+    (t/testing "Set template with missing variable"
+      (let [rslt (sut/parse-template "set-with-var.edn")]
+        (t/is (set? rslt))
+        (t/is (= #{1 :1 "MISSING_TEMPLATE_VALUE_:one"} rslt))))
+    (t/testing "Set template with missing variable and default"
+      (let [rslt (sut/parse-template "set-with-var-default.edn")]
+        (t/is (set? rslt))
+        (t/is (= #{1 :1 "default one"} rslt)))))
+  (t/testing "Basic list template with variables"
+    (t/testing "List template with variable"
+      (let [rslt (sut/parse-template "list-with-var.edn"
+                                     :context {:two  "two"
+                                               :four "four"})]
+        (t/is (list? rslt))
+        (t/is (= '("one" "two" "three" "four") rslt))))
+    (t/testing "List template with missing variable"
+      (let [rslt (sut/parse-template "list-with-var.edn")]
+        (t/is (list? rslt))
+        (t/is (= '("one" "MISSING_TEMPLATE_VALUE_:two" "three"
+                   "MISSING_TEMPLATE_VALUE_:four") rslt))))
+    (t/testing "List template with missing variable and default"
+      (let [rslt (sut/parse-template "list-with-var-default.edn")]
+        (t/is (list? rslt))
+        (t/is (= '("one" :two "three" :four) rslt))))))
 
 

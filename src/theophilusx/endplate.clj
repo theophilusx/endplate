@@ -65,7 +65,7 @@
     (catch Exception e
       (let [msg (str "parse-template: " (ex-message e))]
         (log/error e msg)
-        (throw (ex-info msg {:template template-file :context context} e))))))
+        (throw (ex-info msg {:template-file template-file :context context} e))))))
 
 
 
