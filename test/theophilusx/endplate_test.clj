@@ -1,6 +1,7 @@
 (ns theophilusx.endplate-test
   (:require [clojure.test :as t]
-            [theophilusx.endplate :as sut]))
+            [theophilusx.endplate :as sut]
+            [hiccup.page :refer [include-css include-js]]))
 
 (t/deftest parse-template
   (t/testing "Cleanly handle missing template"
@@ -105,4 +106,8 @@
         (t/is (list? rslt))
         (t/is (= '("one" :two "three" :four) rslt))))))
 
-
+(t/deftest hiccup-parse-template
+  (t/testing "basic header template for hiccup page"
+    (let [rslt (sut/parse-template "head.edn" :hiccup true)]
+      (t/is (vector? rslt))
+      (t/is (= (first rslt) :head)))))
