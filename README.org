@@ -11,8 +11,8 @@ functionality and works with native ~Clojure~ data types.
 The obvious candidate was to do something based around EDN. As ~Clojure~ supports parsing of
 EDN files and given how easy it is to add new types, using EDN seems like a simple and
 flexible solution. Essentially, ~endplate~ uses an EDN format together with a custom
-EDN dispatcher to /tokens/ which can be dynamically replaced by EDN elements during parsing
-of the template.
+EDN dispatcher to add /tokens/ which can be dynamically replaced by EDN elements during parsing
+of the template or include other /nested/ EDN files.
 
 While ~endplate~ can be used to work with general EDN formatted data, it is particularly
 useful for managing templates of ~hiccup~ data used for HTML generation. The =parse-template=
@@ -40,21 +40,26 @@ as the basis for a template i.e. integer. Howsever, a template could be as simpl
 that. More often, a template will be either a map or a vector.
 
 In general, the root element type of the template will be what is returned when a template
-is parsed, unless the optional argument ~:as-string~ is true, in which case the =str= function
+is parsed, unless the optional argument ~:string?~ is true, in which case the =str= function
 will be applied to the parsed template and its result returned as the function result
 rather than the original template element.
 
-A template definition can include ~tags~ which will be replaced by the current value
-associated with that tag in teh ~context~ element passed in as an argument to
-=parse-template=. These dynamic tags are identified by the EDN dispatcher ~#endplate/var~. The
-tag following the dispatcher is either a keyword or a vector. If it is a keyword, the
-value is used as a key to get the associated value from the context map. This value is
-then used as the replacement value for the dispatcher.
+A template definition can include the ~tag~  =#ep/val= followed by either a keyword or a
+vector consisting of a keyword and value. The keyword will be looked up in the emplate
+context map and if found, replaced by the associated value from the map. If not found and
+the value associated with the tag is a vector, it will be replaced with the second value
+in the vector. If the value associated with the tag is just the keyword and it is not
+found in the context map, the vvalue /MISSING_TEMPLATE_VALUE-xxx/ is used to replacve the
+tag.
 
-If the vfalue following the dispatcher is a vector, it is expected to be a vector of two
-elements. The first element is a keyword and will be used to lookup the value in the
-context map. If the keyword does not exist in the context map, the second element of the
-vector is used as the default value.
+Templates can also include the ~tag~ =#ep/incl=, which is used to include another template
+within this template. The argument used with the tag is either a /string/, which specifies
+the name of a template to include, or a /vector/, which has two elements. The first element
+is a string which specifies the template to include and the second argument is a context
+map used to lookup any =#ep/val= tags in the included template. 
+
+See the =resources/templates= directory and the =endplate_tests.clj= file for examples of
+templates and their results when parsed.
 
 *** Simple Example
 
@@ -62,7 +67,7 @@ The following is a very simple template example which includes one template vari
 template is in the file ~sample.edn~. 
 
 #+begin_src clojure
-   ["The value of foo is" #endplate/val :foo]
+   ["The value of foo is" #ep/val :foo]
 #+end_src
 
 If this template is parsed with the following call
@@ -71,8 +76,8 @@ If this template is parsed with the following call
   (parse-template "sample.edn" :context {:foo "my foo var value"})
   ;; => ["The value of foo is" "my foo var value"]
 
-  ;; if we add the :as-string optional argument, we get
-  (parse-template "sample.edn" :context {:foo "my foo var value"} :as-string true)
+  ;; if we add the :string? optional argument, we get
+  (parse-template "sample.edn" :context {:foo "my foo var value"} :string? true)
   ;; => "The value of foo is my foo var value"
 
   ;; If the keyword does not exist in the context you get a default fallback value of
@@ -85,7 +90,7 @@ The second form of the var dispatcher allows for setting a default value inside 
 template. For example, the template could be re-written as
 
 #+begin_src clojure
-  ["The value of foo is" #endplate/var [:foo "default value"]]
+  ["The value of foo is" #ep/var [:foo "default value"]]
 #+end_src
 
 With the above definition, when we re-run the above call to =parse-template= with a context

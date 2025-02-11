@@ -11,12 +11,17 @@
 (defn parse-template
   "Parse an EDN based template file and return an EDN data element.
   A template is any valid EDN element with optional dynamic elements defined by the
-  `#endplate/var' dispatcher tag.
+  `#ep/val' and `#ep/incl' dispatcher tags.
 
-  An #endplat/var dispatcher takes one argument which is either a keyword specifying
+  An #ep/val dispatcher takes one argument which is either a keyword specifying
   a key in the `context' map or a vector of two elements where the first element is a
   keyword to be looked up in the context map and the second element is a default value to
   be used when the key is not found.
+
+  An #ep/incl dispatcher takes one argument which is either a string specifying the name
+  of a template file or a vector with two elements, the first being a string specifying a
+  temp0late file and the second a map to be used as the template context map used to
+  lookup #ep/val variables.
 
   The function accepts a number of optional keyword arguments that affect how the template
   is processed and what is returned.
@@ -24,17 +29,17 @@
   | Argument | Descrition | Default |
   |----------+------------+---------|
   | :context   | A map of keywords -> value used by #endplat/var | {}    |
-  | :hiccup    | If true, vectors are converted to strings       | false |
+  | :hiccup?   | If true, vectors are converted to strings       | false |
   |            | unless the first element is a keyword           |       |
-  | :as-string | If true the function converts the EDN element   | false |
+  | :string?   | If true the function converts the EDN element   | false |
   |            | to a string before returning it                 |       |
-  | :list-eval | If true, list elements in the context map are   | true  |
+  | :list-eval?| If true, list elements in the context map are   | true  |
   |            | evaluated when #endplat/var is dispatched       |       | "
-  [template-file & {:keys [context hiccup as-string list-eval]
-                    :or   {context   {}
-                           hiccup    false
-                           list-eval true
-                           as-string false}}]
+  [template-file & {:keys [context hiccup? string? list-eval?]
+                    :or   {context    {}
+                           hiccup?    false
+                           list-eval? true
+                           string?    false}}]
   (try
     (letfn [(getv
               ([tag]
@@ -46,20 +51,29 @@
                  (try
                    (cond
                      (and (vector? v)
-                          hiccup) (if (keyword? (first v))
-                                    v
-                                    (str v))
-                     (list? v)    (if list-eval
-                                    (eval v)
-                                    v)
-                     :else        v)
+                          hiccup?) (if (keyword? (first v))
+                                     v
+                                     (str v))
+                     (list? v)     (if list-eval?
+                                     (eval v)
+                                     v)
+                     :else         v)
                    (catch Exception e
                      (log/error e (ex-message e))
-                     (throw e))))))]
+                     (throw e))))))
+            (inclt
+              ([tag]
+               (if (vector? tag)
+                 (inclt (first tag) (second tag))
+                 (inclt tag {})))
+              ([template-file context]
+               (parse-template template-file :context context :hiccup? hiccup? :string?
+                               string? :list-eval? list-eval?)))]
       (let [data    (slurp (str @template-dir "/" template-file))
-            readers {:readers {'endplate/val getv}}
+            readers {:readers {'ep/val  getv
+                               'ep/incl inclt}}
             edn     (edn/read-string readers data)]
-        (if as-string
+        (if string?
           (s/join " " edn)
           edn)))
     (catch Exception e

@@ -4,6 +4,6 @@
          :content "width=device-width, initial-scale=1"}]
  [:meta {:http-equiv "Content-Type"
          :content    "text/html"}]
- [:title #endplate/val [:title "Default Header"]]
- #endplate/val [:css (include-css "https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css")]
- #endplate/val [:js (include-js "https://unpkg.com/htmx.org@1.9.12")]]
+ [:title #ep/val [:title "Default Header"]]
+ #ep/val [:css (hiccup.page/include-css "https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css")]
+ #ep/val [:js (hiccup.page/include-js "https://unpkg.com/htmx.org@1.9.12")]]

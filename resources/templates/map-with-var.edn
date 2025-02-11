@@ -3,5 +3,5 @@
  :key3 [1 2 3]
  :key4 {:m1 :a
         :m2 :b}
- :sk1  #endplate/val :some-key1
- :sk2  #endplate/val :some-key2}
+ :sk1  #ep/val :some-key1
+ :sk2  #ep/val :some-key2}

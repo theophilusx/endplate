@@ -1,4 +1,4 @@
 ;; To generate a string which includes a template variable, it is necessary to
 ;; the string and the var dispatcher inside a vector and then call parse-template with the
 ;; :as-string true option
-["Hello from" #endplate/val :from-who]
+["Hello from" #ep/val :from-who]

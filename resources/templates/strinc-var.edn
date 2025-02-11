@@ -1,0 +1,1 @@
+["A simple string template" #ep/incl ["include-var.edn" {:some-var "value of some var"}]]

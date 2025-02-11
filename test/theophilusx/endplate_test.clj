@@ -22,18 +22,18 @@
 
 (t/deftest parse-template-with-vars
   (t/testing "Basic string template with variable"
-    (t/testing "String template with defined variables"
+    (t/testing "with defined variables"
       (let [rslt (sut/parse-template "string-with-var.edn"
-                                     {:as-string true
-                                      :context   {:from-who "Endplate"}})]
+                                     {:string? true
+                                      :context {:from-who "Endplate"}})]
         (t/is (string? rslt))
         (t/is (= "Hello from Endplate" rslt))))
     (t/testing "String template with missing variables"
-      (let [rslt (sut/parse-template "string-with-var.edn" {:as-string true})]
+      (let [rslt (sut/parse-template "string-with-var.edn" :string? true)]
         (t/is (string? rslt))
         (t/is (= "Hello from MISSING_TEMPLATE_VALUE_:from-who" rslt))))
     (t/testing "String template with missing variables and default"
-      (let [rslt (sut/parse-template "string-with-var-default.edn" {:as-string true})]
+      (let [rslt (sut/parse-template "string-with-var-default.edn" :string? true)]
         (t/is (string? rslt))
         (t/is (= "Hello from default value" rslt)))))
   (t/testing "Basic map template with variables"
@@ -107,7 +107,35 @@
         (t/is (= '("one" :two "three" :four) rslt))))))
 
 (t/deftest hiccup-parse-template
-  (t/testing "basic header template for hiccup page"
-    (let [rslt (sut/parse-template "head.edn" :hiccup true)]
+  (t/testing "Processing of head with eval statement"
+    (let [rslt (sut/parse-template "head.edn")]
       (t/is (vector? rslt))
       (t/is (= (first rslt) :head)))))
+
+(t/deftest parse-temlate-with-include
+  (t/testing "String with include"
+    (t/testing "Basic string template with include"
+      (let [rslt (sut/parse-template "strinc.edn")]
+        (t/is (vector? rslt))
+        (t/is (= ["A simple string template" ["This is included with the include dispatcher"]]
+                 rslt))))
+    (t/testing "String template with include and include context"
+      (let [rslt (sut/parse-template "strinc-var.edn")]
+        (t/is (vector? rslt))
+        (t/is (= ["A simple string template"
+                  ["This is included with the include dispatcher" "value of some var"]]
+                 rslt))))
+    (t/testing "String template with include and no context"
+      (let [rslt (sut/parse-template "strinc-var-no-ctx.edn")]
+        (t/is (vector? rslt))
+        (t/is (= ["A simple string template"
+                  ["This is included with the include dispatcher"
+                   "MISSING_TEMPLATE_VALUE_:some-var"]]
+                 rslt))))
+    (t/testing "String template with include and var defaults"
+      (let [rslt (sut/parse-template "strinc-var-default.edn")]
+        (t/is (vector? rslt))
+        (t/is (= ["A simple string template"
+                  ["This is included with the include dispatcher"
+                   :default-value]]
+                 rslt))))))
