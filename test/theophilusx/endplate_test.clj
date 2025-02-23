@@ -120,7 +120,7 @@
         (t/is (= ["A simple string template" ["This is included with the include dispatcher"]]
                  rslt))))
     (t/testing "String template with include and include context"
-      (let [rslt (sut/parse-template "strinc-var.edn")]
+      (let [rslt (sut/parse-template "strinc-var.edn" :context {:some-var "value of some var"})]
         (t/is (vector? rslt))
         (t/is (= ["A simple string template"
                   ["This is included with the include dispatcher" "value of some var"]]
@@ -139,3 +139,4 @@
                   ["This is included with the include dispatcher"
                    :default-value]]
                  rslt))))))
+

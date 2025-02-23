@@ -61,14 +61,9 @@
                    (catch Exception e
                      (log/error e (ex-message e))
                      (throw e))))))
-            (inclt
-              ([tag]
-               (if (vector? tag)
-                 (inclt (first tag) (second tag))
-                 (inclt tag {})))
-              ([template-file context]
-               (parse-template template-file :context context :hiccup? hiccup? :string?
-                               string? :list-eval? list-eval?)))]
+            (inclt [t-file]
+              (parse-template t-file :context context :hiccup? hiccup?
+                              :string? string? :list-eval? list-eval?))]
       (let [data    (slurp (str @template-dir "/" template-file))
             readers {:readers {'ep/val  getv
                                'ep/incl inclt}}

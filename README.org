@@ -22,7 +22,7 @@ keyword and a string otherwise.
 
 ~Endplate~ can also be used for string templates. The =parse-template= function includes an
 option that will enable all templates to be returned as a string, allowing for the
-crweation of templates to aid in processing of text. 
+creation of templates to aid in processing of text. 
 
 Finally, ~Endplate~ supports the use of evaluated code in template parsing. Any template tag
 whicvh expands into a list will be evaluated as a clojure form and wshatever value it
@@ -45,7 +45,7 @@ will be applied to the parsed template and its result returned as the function r
 rather than the original template element.
 
 A template definition can include the ~tag~  =#ep/val= followed by either a keyword or a
-vector consisting of a keyword and value. The keyword will be looked up in the emplate
+vector consisting of a keyword and value. The keyword will be looked up in the template
 context map and if found, replaced by the associated value from the map. If not found and
 the value associated with the tag is a vector, it will be replaced with the second value
 in the vector. If the value associated with the tag is just the keyword and it is not
@@ -53,10 +53,8 @@ found in the context map, the vvalue /MISSING_TEMPLATE_VALUE-xxx/ is used to rep
 tag.
 
 Templates can also include the ~tag~ =#ep/incl=, which is used to include another template
-within this template. The argument used with the tag is either a /string/, which specifies
-the name of a template to include, or a /vector/, which has two elements. The first element
-is a string which specifies the template to include and the second argument is a context
-map used to lookup any =#ep/val= tags in the included template. 
+within this template. The argument used with the tag is a /string which specifies
+the name of a template to include.  
 
 See the =resources/templates= directory and the =endplate_tests.clj= file for examples of
 templates and their results when parsed.
